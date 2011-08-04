@@ -37,6 +37,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFile>
+#include <QProcess>
 
 #include "consts.h"
 #include "utils.h"
@@ -261,6 +262,16 @@ QObject *Phantom::createWebPage()
 
 bool Phantom::injectJs(const QString &jsFilePath) {
     return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());
+}
+
+QString Phantom::shell_exec(const QString &cmd) {
+  QProcess proc;
+  proc.start(cmd);
+  if(proc.waitForFinished()) {
+    return proc.readAllStandardOutput();
+  } else {
+    return "";
+  }
 }
 
 void Phantom::exit(int code)

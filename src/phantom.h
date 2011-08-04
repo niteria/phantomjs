@@ -69,6 +69,7 @@ public slots:
     bool injectJs(const QString &jsFilePath);
     void exit(int code = 0);
     void _destroy(QObject *page);
+    QString shell_exec(const QString &cmd);
 
 private slots:
     void printConsoleMessage(const QString &msg, int lineNumber, const QString &source);
