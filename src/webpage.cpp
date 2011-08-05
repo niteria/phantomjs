@@ -269,10 +269,14 @@ void WebPage::emitConsoleMessage(const QString &message, int lineNumber, const Q
 void WebPage::finish(bool ok)
 {
     QString status = ok ? "success" : "fail";
-    emit loadFinished(status);
+    if(waiting) {
+      loop.exit();
+    } else {
+      emit loadFinished(status);
+    }
 }
 
-void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)
+void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings, bool async = true)
 {
     QString operation;
     QByteArray body;
@@ -310,6 +314,12 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
     }
 
     m_mainFrame->load(QNetworkRequest(QUrl(address)), networkOp, body);
+    if (!async) {
+      waiting = true;
+      loop.exec();
+    } else {
+      waiting = false;
+    }
 }
 
 bool WebPage::render(const QString &fileName)

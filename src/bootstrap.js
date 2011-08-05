@@ -64,6 +64,23 @@ window.WebPage = function() {
         throw "Wrong use of WebPage#open";
     };
 
+    page.openBlocking = function() {
+        if (arguments.length === 1) {
+            this.openUrl(arguments[0], 'get', this.settings, false);
+            return;
+        } else if (arguments.length === 2) {
+            this.openUrl(arguments[0], arguments[1], this.settings, false);
+            return;
+        } else if (arguments.length === 3) {
+            this.openUrl(arguments[0], {
+                operation: arguments[1],
+                data: arguments[2]
+                }, this.settings, false);
+            return;
+        }
+        throw "Wrong use of WebPage#openBlocking";
+    }
+
     page.includeJs = function(scriptUrl, onScriptLoaded) {
         // Register temporary signal handler for 'alert()'
         this.javaScriptAlertSent.connect(function(msgFromAlert) {

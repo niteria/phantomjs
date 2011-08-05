@@ -31,6 +31,7 @@
 #ifndef WEBPAGE_H
 #define WEBPAGE_H
 
+#include <QEventLoop>
 #include <QMap>
 #include <QWebPage>
 #include <QVariantMap>
@@ -74,7 +75,7 @@ public:
     QVariantMap paperSize() const;
 
 public slots:
-    void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);
+    void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings, bool async);
     QVariant evaluate(const QString &code);
     bool render(const QString &fileName);
     bool injectJs(const QString &jsFilePath);
@@ -99,6 +100,9 @@ private:
     QPoint m_scrollPosition;
     QVariantMap m_paperSize; // For PDF output via render()
     QString m_libraryPath;
+
+    QEventLoop loop;
+    bool waiting;
 
     QImage renderImage();
     bool renderPdf(const QString &fileName);
