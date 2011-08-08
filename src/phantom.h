@@ -70,12 +70,14 @@ public slots:
     void exit(int code = 0);
     void _destroy(QObject *page);
     QString shell_exec(const QString &cmd);
+    void clear();
 
 private slots:
     void printConsoleMessage(const QString &msg, int lineNumber, const QString &source);
 
 private:
     QString m_scriptFile;
+    QString m_cookieFile;
     QStringList m_args;
     WebPage *m_page;
     bool m_terminated;

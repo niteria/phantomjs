@@ -39,6 +39,7 @@
 #include <QFile>
 #include <QProcess>
 
+#include "cookiejar.h"
 #include "consts.h"
 #include "utils.h"
 #include "webpage.h"
@@ -55,14 +56,13 @@ Phantom::Phantom(QObject *parent)
     m_pages.append(m_page);
 
     QString proxyHost;
-    QString cookieFile;
     int proxyPort = 1080;
     bool autoLoadImages = true;
     bool pluginsEnabled = false;
     bool diskCacheEnabled = false;
     bool ignoreSslErrors = false;
     bool localAccessRemote = false;
-
+    m_cookieFile = "";
     // second argument: script name
     QStringList args = QApplication::arguments();
 
@@ -131,7 +131,7 @@ Phantom::Phantom(QObject *parent)
             continue;
         }
         if (arg.startsWith("--cookies=")) {
-            cookieFile = arg.mid(10).trimmed();
+            m_cookieFile = arg.mid(10).trimmed();
             continue;
         }
         if (arg.startsWith("--")) {
@@ -163,7 +163,7 @@ Phantom::Phantom(QObject *parent)
     }
 
     // Provide WebPage with a non-standard Network Access Manager
-    m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, cookieFile, ignoreSslErrors);
+    m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, m_cookieFile, ignoreSslErrors);
     m_page->setNetworkAccessManager(m_netAccessMan);
 
     connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)),
@@ -202,6 +202,16 @@ QStringList Phantom::args() const
 QVariantMap Phantom::defaultPageSettings() const
 {
     return m_defaultPageSettings;
+}
+
+void Phantom::clear() {
+  if(m_netAccessMan->cache())
+    m_netAccessMan->cache()->clear(); 
+  if (m_cookieFile.isEmpty()) {
+    m_netAccessMan->setCookieJar(new QNetworkCookieJar());
+  } else {
+    m_netAccessMan->setCookieJar(new CookieJar(m_cookieFile));
+  }
 }
 
 bool Phantom::execute()

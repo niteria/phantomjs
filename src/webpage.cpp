@@ -36,6 +36,7 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
+#include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QNetworkAccessManager>
 #include <QPainter>
@@ -146,6 +147,8 @@ void WebPage::setNetworkAccessManager(QNetworkAccessManager *networkAccessManage
             SIGNAL(resourceRequested(QVariant)));
     connect(networkAccessManager, SIGNAL(resourceReceived(QVariant)),
             SIGNAL(resourceReceived(QVariant)));
+    connect(networkAccessManager, SIGNAL(finished(QNetworkReply *)),
+            this, SLOT(httpResponseFinished(QNetworkReply *)));
 }
 
 QString WebPage::content() const
@@ -269,11 +272,25 @@ void WebPage::emitConsoleMessage(const QString &message, int lineNumber, const Q
 void WebPage::finish(bool ok)
 {
     QString status = ok ? "success" : "fail";
-    if(waiting) {
-      loop.exit();
+    if(m_waiting) {
+      m_loop.exit();
     } else {
       emit loadFinished(status);
     }
+}
+
+void WebPage::httpResponseFinished(QNetworkReply * reply) {
+  QVariant code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+  if (!code.isNull()) {
+    if (reply->request().url().toString() == m_urlLoading) {
+      m_httpStatusCode = code.toInt();
+    }
+  }
+
+}
+
+int WebPage::httpStatus() {
+  return m_httpStatusCode;
 }
 
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings, bool async = true)
@@ -313,12 +330,14 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
         return;
     }
 
+    m_httpStatusCode = -1;
+    m_urlLoading = address;
     m_mainFrame->load(QNetworkRequest(QUrl(address)), networkOp, body);
     if (!async) {
-      waiting = true;
-      loop.exec();
+      m_waiting = true;
+      m_loop.exec();
     } else {
-      waiting = false;
+      m_waiting = false;
     }
 }
 

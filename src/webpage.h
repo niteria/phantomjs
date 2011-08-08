@@ -81,6 +81,7 @@ public slots:
     bool injectJs(const QString &jsFilePath);
     void _appendScriptElement(const QString &scriptUrl);
     void uploadFile(const QString &selector, const QString &fileName);
+    int httpStatus();
 
 signals:
     void loadStarted();
@@ -92,6 +93,7 @@ signals:
 
 private slots:
     void finish(bool ok);
+    void httpResponseFinished(QNetworkReply * reply);
 
 private:
     CustomPage *m_webPage;
@@ -100,9 +102,11 @@ private:
     QPoint m_scrollPosition;
     QVariantMap m_paperSize; // For PDF output via render()
     QString m_libraryPath;
+    QString m_urlLoading;
+    int m_httpStatusCode;
 
-    QEventLoop loop;
-    bool waiting;
+    QEventLoop m_loop;
+    bool m_waiting;
 
     QImage renderImage();
     bool renderPdf(const QString &fileName);
