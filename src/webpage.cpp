@@ -41,6 +41,7 @@
 #include <QNetworkAccessManager>
 #include <QPainter>
 #include <QPrinter>
+#include <QTimer>
 #include <QWebElement>
 #include <QWebFrame>
 #include <QWebPage>
@@ -291,6 +292,15 @@ void WebPage::httpResponseFinished(QNetworkReply * reply) {
 
 int WebPage::httpStatus() {
   return m_httpStatusCode;
+}
+
+void WebPage::wait(int msec) {
+  QTimer::singleShot(msec, this, SLOT(waitFinished()));
+  m_waitloop.exec();
+}
+
+void WebPage::waitFinished() {
+  m_waitloop.exit();
 }
 
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings, bool async = true)

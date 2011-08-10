@@ -81,6 +81,7 @@ public slots:
     bool injectJs(const QString &jsFilePath);
     void _appendScriptElement(const QString &scriptUrl);
     void uploadFile(const QString &selector, const QString &fileName);
+    void wait(int msec);
     int httpStatus();
 
 signals:
@@ -93,6 +94,7 @@ signals:
 
 private slots:
     void finish(bool ok);
+    void waitFinished();
     void httpResponseFinished(QNetworkReply * reply);
 
 private:
@@ -106,6 +108,7 @@ private:
     int m_httpStatusCode;
 
     QEventLoop m_loop;
+    QEventLoop m_waitloop;
     bool m_waiting;
 
     QImage renderImage();
