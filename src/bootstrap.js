@@ -211,7 +211,6 @@ window.require = function(id) {
 
     /* Return the text of the specified url, script element or file */
     function gettext(url) {
-        console.log('gettext(' + url + ')');
         var fd = fs.open(url, 'r');
         var contents = fd.read();
         fd.close();
